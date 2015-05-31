@@ -96,12 +96,24 @@ $statsd->set('api.unique_logins', $userID);
 $statsd->timing('api.response_time', 256);
 ```
 
-## Timing Blocks
+### Timing Blocks
 
 ```php
 $statsd->time('api.dbcall', function () {
     // this code execution will be timed and recorded in ms
 });
+```
+
+### Tags support
+
+```php
+$tags = ['type' => 'guest'];
+$statsd->incrementTagged('web.pageview', $tags);
+$statsd->decrementTagged('storage.remaining', $tags);
+
+$statsd->gauge('api.logged_in_users', 123456, $tags);
+$statsd->set('api.unique_logins', 13, $tags);
+$statsd->timing('api.response_time', 256, $tags);
 ```
 
 ## Testing
