@@ -195,6 +195,25 @@ class Client
 
 
     /**
+     * Increment a metric with tags
+     * @param  string|array $metrics Metric(s) to increment
+     * @param  array $tags Tags associated with metric(s)
+     * @param  int $delta Value to decrement the metric by
+     * @param  int $sampleRate Sample rate of metric
+     * @return Client This instance
+     */
+    public function incrementTagged($metrics, $tags = [], $delta = 1, $sampleRate = 1)
+    {
+        $metricNames = [];
+        foreach ((array)$metrics as $metric) {
+            $metricNames[] = $this->_generateName($metric, $tags);
+        }
+
+        return $this->increment($metricNames, $delta, $sampleRate);
+    }
+
+
+    /**
      * Decrement a metric
      * @param  string|array $metrics Metric(s) to decrement
      * @param  int $delta Value to increment the metric by
@@ -208,16 +227,38 @@ class Client
 
 
     /**
+     * Decrement a metric with tags
+     * @param  string|array $metrics Metric(s) to decrement
+     * @param  array $tags Tags associated with metric(s)
+     * @param  int $delta Value to decrement the metric by
+     * @param  int $sampleRate Sample rate of metric
+     * @return Client This instance
+     */
+    public function decrementTagged($metrics, $tags = [], $delta = 1, $sampleRate = 1)
+    {
+        $metricNames = [];
+        foreach ((array)$metrics as $metric) {
+            $metricNames[] = $this->_generateName($metric, $tags);
+        }
+
+        return $this->decrement($metricNames, $delta, $sampleRate);
+    }
+
+
+    /**
      * Timing
      * @param  string $metric Metric to track
      * @param  float $time Time in milliseconds
+     * @param  array $tags Tags associated with metric
      * @return bool True if data transfer is successful
      */
-    public function timing($metric, $time)
+    public function timing($metric, $time, $tags = [])
     {
+        $taggedMetric = $this->_generateName($metric, $tags);
+
         return $this->send(
             array(
-                $metric => $time . '|ms'
+                $taggedMetric => $time . '|ms'
             )
         );
     }
@@ -227,15 +268,16 @@ class Client
      * Time a function
      * @param  string $metric Metric to time
      * @param  callable $func Function to record
+     * @param  array $tags Tags associated with metric
      * @return bool True if data transfer is successful
      */
-    public function time($metric, $func)
+    public function time($metric, $func, $tags = [])
     {
         $timer_start = microtime(true);
         $func();
         $timer_end = microtime(true);
         $time = round(($timer_end - $timer_start) * 1000, 4);
-        return $this->timing($metric, $time);
+        return $this->timing($metric, $time, $tags);
     }
 
 
@@ -243,13 +285,16 @@ class Client
      * Gauges
      * @param  string $metric Metric to gauge
      * @param  int $value Set the value of the gauge
+     * @param  array $tags Tags associated with metric
      * @return Client This instance
      */
-    public function gauge($metric, $value)
+    public function gauge($metric, $value, $tags = [])
     {
+        $taggedMetric = $this->_generateName($metric, $tags);
+
         return $this->send(
             array(
-                $metric => $value . '|g'
+                $taggedMetric => $value . '|g'
             )
         );
     }
@@ -258,15 +303,36 @@ class Client
      * Sets - count the number of unique values passed to a key
      * @param $metric
      * @param mixed $value
+     * @param array $tags Tags associated with metric
      * @return Client This instance
      */
-    public function set($metric, $value)
+    public function set($metric, $value, $tags = [])
     {
-        return $this->send(
+       $taggedMetric = $this->_generateName($metric, $tags);
+
+       return $this->send(
             array(
-                $metric => $value . '|s'
+                $taggedMetric => $value . '|s'
             )
         );
+    }
+
+
+    /**
+     * Encode tags in metric name
+     * @param $metric
+     * @param array $tags
+     * @return string
+     */
+    protected function _generateName($metric, $tags)
+    {
+        $resultName = $metric;
+
+        foreach ($tags as $tag => $value) {
+            $resultName .= "." . $tag . "=" . $value;
+        }
+
+        return $resultName;
     }
 
 

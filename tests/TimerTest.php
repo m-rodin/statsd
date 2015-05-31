@@ -12,6 +12,13 @@ class TimerTest extends TestCase
     }
 
 
+    public function testTimingTagged()
+    {
+        $this->client->timing('test_metric', 123, ['foo' => 'bar', 'mam' => 'bo']);
+        $this->assertEquals('test_metric.foo=bar.mam=bo:123|ms', $this->client->getLastMessage());
+    }
+
+
     public function testFunctionTiming()
     {
         $this->client->time('test_metric', function () {
