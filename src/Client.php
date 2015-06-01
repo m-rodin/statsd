@@ -55,6 +55,12 @@ class Client
     protected $namespace = '';
 
     /**
+     * Tag prefix is used for encode in metrics names
+     * @var string
+     */
+    protected $tag_prefix = '_t_';
+
+    /**
      * Timeout for creating the socket connection
      * @var null|float
      */
@@ -123,6 +129,9 @@ class Client
         }
         if (isset($options['timeout'])) {
             $this->timeout = $options['timeout'];
+        }
+        if (isset($options['tag_prefix'])) {
+            $this->tag_prefix = $options['tag_prefix'];
         }
         return $this;
     }
@@ -329,7 +338,7 @@ class Client
         $resultName = $metric;
 
         foreach ($tags as $tag => $value) {
-            $resultName .= "." . $tag . "=" . $value;
+            $resultName .= "." . $this->tag_prefix . $tag . "." . $value;
         }
 
         return $resultName;
