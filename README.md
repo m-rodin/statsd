@@ -16,7 +16,7 @@ Via Composer
 ```json
 {
     "require": {
-        "league/statsd": "1.1.*"
+        "m-rodin/statsd": "1.1.*"
     }
 }
 ```
