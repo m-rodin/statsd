@@ -15,7 +15,7 @@ class GaugeTest extends TestCase
     public function testGaugeTagged()
     {
         $this->client->gauge('test_metric', 456, ['foo' => 'bar', 'mam' => 'bo']);
-        $this->assertEquals('test_metric.foo=bar.mam=bo:456|g', $this->client->getLastMessage());
+        $this->assertEquals('test_metric._t_foo.bar._t_mam.bo:456|g', $this->client->getLastMessage());
     }
 
 }
