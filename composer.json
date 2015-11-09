@@ -1,5 +1,5 @@
 {
-    "name": "league/statsd",
+    "name": "m-rodin/statsd",
     "description": "A simple library for working with StatsD in PHP.",
     "keywords": [
         "library",
